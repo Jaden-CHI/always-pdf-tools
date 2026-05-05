@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "AlwasyPDF Tools",
+  "version": "1.0.0",
+  "description": "브라우저에서 바로 PDF를 편집하세요. 병합, 분할, 압축, 변환, 서명 등 모든 PDF 작업을 로컬에서 처리합니다.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "AlwasyPDF Tools"
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/context-menu.ts"]
+    }
+  ],
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "downloads"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/pages/index.html", "assets/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
