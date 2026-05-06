@@ -32,6 +32,7 @@ export default function OCRTool() {
     if (!file) return
     setLoading(true)
     setProgress(0)
+    setProgressLabel('언어 데이터 로딩 중... (첫 실행 시 수십 초 소요)')
     setResult('')
     abortRef.current = false
 
