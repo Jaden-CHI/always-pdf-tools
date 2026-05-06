@@ -44,6 +44,7 @@ export default function OCRTool() {
         workerPath,
         workerBlobURL: false,
         corePath,
+        cacheMethod: 'none',
         logger: (m: { status: string; progress: number }) => {
           if (m.status === 'recognizing text') {
             setProgress(Math.round(m.progress * 100))
