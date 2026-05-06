@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/context-menu.ts-CVPkO4qH.js"
+        "assets/context-menu.ts-BVcfghai.js"
       ],
       "matches": [
         "<all_urls>"
@@ -47,7 +47,7 @@
       "resources": [
         "src/pages/index.html",
         "assets/*",
-        "assets/context-menu.ts-CVPkO4qH.js"
+        "assets/context-menu.ts-BVcfghai.js"
       ],
       "use_dynamic_url": false
     }

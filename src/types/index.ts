@@ -10,6 +10,7 @@ export type ToolId =
   | 'watermark'
   | 'protect'
   | 'remove-metadata'
+  | 'ocr'
 
 export interface Tool {
   id: ToolId

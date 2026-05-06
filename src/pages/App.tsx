@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Moon, Sun, FileText, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, PenLine, ShieldOff, LayoutGrid } from 'lucide-react'
+import { Moon, Sun, FileText, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, PenLine, ShieldOff, LayoutGrid, ScanText } from 'lucide-react'
 import ToolCard from '@/components/ui/ToolCard'
 import MergePDF from '@/components/tools/MergePDF'
 import SplitPDF from '@/components/tools/SplitPDF'
@@ -12,6 +12,7 @@ import ProtectPDF from '@/components/tools/ProtectPDF'
 import SignPDF from '@/components/tools/SignPDF'
 import RemoveMetadata from '@/components/tools/RemoveMetadata'
 import OrganizePages from '@/components/tools/OrganizePages'
+import OCRTool from '@/components/tools/OCRTool'
 import type { ToolId } from '@/types'
 
 const TOOLS = [
@@ -26,6 +27,7 @@ const TOOLS = [
   { id: 'watermark' as ToolId, name: '워터마크', description: '텍스트 워터마크를 추가합니다', icon: Droplets, color: 'slate' },
   { id: 'protect' as ToolId, name: '비밀번호 보호', description: 'PDF를 비밀번호로 보호/해제합니다', icon: Lock, color: 'red' },
   { id: 'remove-metadata' as ToolId, name: '메타데이터 제거', description: '작성자·제목 등 개인정보를 삭제합니다', icon: ShieldOff, color: 'slate' },
+  { id: 'ocr' as ToolId, name: 'OCR 텍스트 추출', description: 'PDF·이미지에서 텍스트를 인식합니다', icon: ScanText, color: 'blue' },
 ]
 
 const TOOL_COMPONENTS: Partial<Record<ToolId, React.ComponentType>> = {
@@ -40,6 +42,7 @@ const TOOL_COMPONENTS: Partial<Record<ToolId, React.ComponentType>> = {
   watermark: WatermarkPDF,
   protect: ProtectPDF,
   'remove-metadata': RemoveMetadata,
+  ocr: OCRTool,
 }
 
 export default function App() {
