@@ -1,4 +1,4 @@
-import { FileText, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, ExternalLink } from 'lucide-react'
+import { FileText, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, ExternalLink, PenLine, ShieldOff, LayoutGrid } from 'lucide-react'
 
 const TOOLS = [
   { name: 'PDF 합치기', icon: GitMerge, color: 'text-blue-600', tool: 'merge' },
@@ -7,8 +7,11 @@ const TOOLS = [
   { name: 'PDF → 이미지', icon: Image, color: 'text-purple-600', tool: 'to-image' },
   { name: '이미지 → PDF', icon: Images, color: 'text-orange-500', tool: 'from-image' },
   { name: '페이지 회전', icon: RotateCw, color: 'text-blue-500', tool: 'rotate' },
+  { name: '페이지 정리', icon: LayoutGrid, color: 'text-purple-500', tool: 'organize' },
+  { name: 'PDF 서명', icon: PenLine, color: 'text-green-500', tool: 'sign' },
   { name: '워터마크', icon: Droplets, color: 'text-slate-500', tool: 'watermark' },
   { name: '비밀번호 보호', icon: Lock, color: 'text-red-600', tool: 'protect' },
+  { name: '메타데이터 제거', icon: ShieldOff, color: 'text-slate-400', tool: 'remove-metadata' },
 ]
 
 export default function Popup() {

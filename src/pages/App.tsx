@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Moon, Sun, FileText, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock } from 'lucide-react'
+import { Moon, Sun, FileText, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, PenLine, ShieldOff, LayoutGrid } from 'lucide-react'
 import ToolCard from '@/components/ui/ToolCard'
 import MergePDF from '@/components/tools/MergePDF'
 import SplitPDF from '@/components/tools/SplitPDF'
@@ -9,6 +9,9 @@ import ConvertFromImage from '@/components/tools/ConvertFromImage'
 import RotatePages from '@/components/tools/RotatePages'
 import WatermarkPDF from '@/components/tools/WatermarkPDF'
 import ProtectPDF from '@/components/tools/ProtectPDF'
+import SignPDF from '@/components/tools/SignPDF'
+import RemoveMetadata from '@/components/tools/RemoveMetadata'
+import OrganizePages from '@/components/tools/OrganizePages'
 import type { ToolId } from '@/types'
 
 const TOOLS = [
@@ -18,8 +21,11 @@ const TOOLS = [
   { id: 'to-image' as ToolId, name: 'PDF → 이미지', description: 'PDF 페이지를 이미지로 변환합니다', icon: Image, color: 'purple' },
   { id: 'from-image' as ToolId, name: '이미지 → PDF', description: '이미지를 PDF로 변환합니다', icon: Images, color: 'orange' },
   { id: 'rotate' as ToolId, name: '페이지 회전', description: 'PDF 페이지 방향을 회전합니다', icon: RotateCw, color: 'blue' },
+  { id: 'organize' as ToolId, name: '페이지 정리', description: '페이지 삭제 및 순서를 변경합니다', icon: LayoutGrid, color: 'purple' },
+  { id: 'sign' as ToolId, name: 'PDF 서명', description: '직접 그린 서명을 PDF에 삽입합니다', icon: PenLine, color: 'green' },
   { id: 'watermark' as ToolId, name: '워터마크', description: '텍스트 워터마크를 추가합니다', icon: Droplets, color: 'slate' },
   { id: 'protect' as ToolId, name: '비밀번호 보호', description: 'PDF를 비밀번호로 보호/해제합니다', icon: Lock, color: 'red' },
+  { id: 'remove-metadata' as ToolId, name: '메타데이터 제거', description: '작성자·제목 등 개인정보를 삭제합니다', icon: ShieldOff, color: 'slate' },
 ]
 
 const TOOL_COMPONENTS: Partial<Record<ToolId, React.ComponentType>> = {
@@ -29,8 +35,11 @@ const TOOL_COMPONENTS: Partial<Record<ToolId, React.ComponentType>> = {
   'to-image': ConvertToImage,
   'from-image': ConvertFromImage,
   rotate: RotatePages,
+  organize: OrganizePages,
+  sign: SignPDF,
   watermark: WatermarkPDF,
   protect: ProtectPDF,
+  'remove-metadata': RemoveMetadata,
 }
 
 export default function App() {
@@ -38,7 +47,15 @@ export default function App() {
   const [activeTool, setActiveTool] = useState<ToolId | null>(
     TOOLS.find((t) => t.id === initialTool)?.id ?? null
   )
-  const [dark, setDark] = useState(false)
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
+
+  const toggleDark = () => {
+    setDark((prev) => {
+      const next = !prev
+      localStorage.setItem('theme', next ? 'dark' : 'light')
+      return next
+    })
+  }
 
   const ActiveComponent = activeTool ? TOOL_COMPONENTS[activeTool] : null
   const activeMeta = TOOLS.find((t) => t.id === activeTool)
@@ -54,7 +71,7 @@ export default function App() {
             <span className="font-bold text-slate-800 dark:text-white text-lg">AlwasyPDF Tools</span>
           </div>
           <button
-            onClick={() => setDark(!dark)}
+            onClick={toggleDark}
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
           >
             {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -62,7 +79,7 @@ export default function App() {
         </header>
 
         <div className="flex flex-1">
-          <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 p-4 space-y-1 hidden md:block">
+          <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 p-4 space-y-1 hidden md:block overflow-y-auto">
             {TOOLS.map((tool) => {
               const Icon = tool.icon
               return (

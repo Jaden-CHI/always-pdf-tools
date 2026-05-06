@@ -5,11 +5,11 @@ export type ToolId =
   | 'to-image'
   | 'from-image'
   | 'rotate'
-  | 'delete-pages'
-  | 'reorder'
+  | 'organize'
   | 'sign'
   | 'watermark'
   | 'protect'
+  | 'remove-metadata'
 
 export interface Tool {
   id: ToolId
