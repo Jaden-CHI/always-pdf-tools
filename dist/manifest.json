@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AlwasyPDF Tools",
+  "name": "AlwaysPDF Tools",
   "version": "1.0.0",
   "description": "브라우저에서 바로 PDF를 편집하세요. 병합, 분할, 압축, 변환, 서명 등 모든 PDF 작업을 로컬에서 처리합니다.",
   "icons": {
@@ -15,7 +15,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "AlwasyPDF Tools"
+    "default_title": "AlwaysPDF Tools"
   },
   "background": {
     "service_worker": "service-worker-loader.js",

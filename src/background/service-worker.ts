@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: 'alwasy-pdf-tools',
-    title: 'AlwasyPDF Tools로 열기',
+    title: 'AlwaysPDF Tools로 열기',
     contexts: ['link'],
     documentUrlPatterns: ['<all_urls>'],
   })

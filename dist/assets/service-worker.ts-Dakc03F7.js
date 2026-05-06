@@ -1,1 +1,0 @@
-chrome.runtime.onInstalled.addListener(()=>{chrome.contextMenus.create({id:`alwasy-pdf-tools`,title:`AlwasyPDF Tools로 열기`,contexts:[`link`],documentUrlPatterns:[`<all_urls>`]})}),chrome.contextMenus.onClicked.addListener(e=>{if(e.menuItemId===`alwasy-pdf-tools`&&e.linkUrl){let e=chrome.runtime.getURL(`src/pages/index.html`);chrome.tabs.create({url:e})}});

@@ -71,7 +71,7 @@ export default function App() {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <FileText className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-slate-800 dark:text-white text-lg">AlwasyPDF Tools</span>
+            <span className="font-bold text-slate-800 dark:text-white text-lg">AlwaysPDF Tools</span>
           </div>
           <button
             onClick={toggleDark}

@@ -33,7 +33,7 @@ export default function Popup() {
           <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
             <FileText className="w-3.5 h-3.5 text-white" />
           </div>
-          <span className="font-bold text-slate-800 dark:text-white text-sm">AlwasyPDF Tools</span>
+          <span className="font-bold text-slate-800 dark:text-white text-sm">AlwaysPDF Tools</span>
         </div>
         <button
           onClick={openMain}
