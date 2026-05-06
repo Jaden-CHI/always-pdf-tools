@@ -40,6 +40,7 @@ export default function OCRTool() {
       const workerPath = chrome.runtime.getURL('tesseract-worker.min.js')
       const worker = await createWorker(lang, 1, {
         workerPath,
+        workerBlobURL: false,
         logger: (m: { status: string; progress: number }) => {
           if (m.status === 'recognizing text') {
             setProgress(Math.round(m.progress * 100))
