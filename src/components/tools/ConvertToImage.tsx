@@ -5,8 +5,10 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { pdfToImages } from '@/lib/pdf-convert'
 import { downloadBlob, formatFileSize } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 
 export default function ConvertToImage() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
   const [format, setFormat] = useState<'jpeg' | 'png'>('jpeg')
   const [loading, setLoading] = useState(false)
@@ -40,7 +42,7 @@ export default function ConvertToImage() {
       )}
 
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">이미지 형식</p>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('toImage.format.label')}</p>
         <div className="grid grid-cols-2 gap-2">
           {(['jpeg', 'png'] as const).map((f) => (
             <button
@@ -58,11 +60,11 @@ export default function ConvertToImage() {
         </div>
       </div>
 
-      {loading && <ProgressBar value={progress} label="변환 중... (페이지 수에 따라 시간이 걸릴 수 있습니다)" />}
+      {loading && <ProgressBar value={progress} label={t('toImage.running')} />}
 
       <Button onClick={convert} loading={loading} disabled={!file} size="lg" className="w-full justify-center">
         <Download className="w-4 h-4" />
-        이미지로 변환하기
+        {t('toImage.run')}
       </Button>
     </div>
   )

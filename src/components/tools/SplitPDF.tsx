@@ -5,9 +5,11 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { splitPDF } from '@/lib/pdf-split'
 import { downloadBlob, formatFileSize } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 import type { SplitOption } from '@/types'
 
 export default function SplitPDF() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
   const [mode, setMode] = useState<SplitOption['mode']>('every')
   const [everyN, setEveryN] = useState(1)
@@ -43,8 +45,8 @@ export default function SplitPDF() {
       )}
 
       <div className="space-y-4">
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">분할 방식</p>
-        <div className="grid grid-cols-3 gap-2">
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('split.mode.label')}</p>
+        <div className="grid grid-cols-2 gap-2">
           {(['every', 'range'] as const).map((m) => (
             <button
               key={m}
@@ -55,14 +57,13 @@ export default function SplitPDF() {
                   : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-blue-300'
               }`}
             >
-              {m === 'every' ? '페이지마다' : '범위 지정'}
+              {m === 'every' ? t('split.mode.every') : t('split.mode.range')}
             </button>
           ))}
         </div>
 
         {mode === 'every' && (
           <div className="flex items-center gap-3">
-            <p className="text-sm text-slate-600 dark:text-slate-400">매</p>
             <input
               type="number"
               min={1}
@@ -70,29 +71,29 @@ export default function SplitPDF() {
               onChange={(e) => setEveryN(Number(e.target.value))}
               className="w-20 px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white"
             />
-            <p className="text-sm text-slate-600 dark:text-slate-400">페이지마다 분할</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">{t('split.every.label')}</p>
           </div>
         )}
 
         {mode === 'range' && (
           <div className="space-y-1">
-            <p className="text-xs text-slate-500">예: 1-3, 4-6, 7</p>
+            <p className="text-xs text-slate-500">{t('split.range.label')}</p>
             <input
               type="text"
               value={ranges}
               onChange={(e) => setRanges(e.target.value)}
-              placeholder="1-3, 4-6, 7"
+              placeholder={t('split.range.placeholder')}
               className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white"
             />
           </div>
         )}
       </div>
 
-      {loading && <ProgressBar value={progress} label="분할 중..." />}
+      {loading && <ProgressBar value={progress} label={t('split.running')} />}
 
       <Button onClick={split} loading={loading} disabled={!file} size="lg" className="w-full justify-center">
         <Download className="w-4 h-4" />
-        PDF 분할하기
+        {t('split.run')}
       </Button>
     </div>
   )

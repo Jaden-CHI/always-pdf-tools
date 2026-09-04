@@ -5,8 +5,10 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { PDFDocument, rgb, StandardFonts, degrees } from 'pdf-lib'
 import { downloadBlob, formatFileSize, getFilenameWithoutExt, readFileAsArrayBuffer, uint8ToBlob } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 
 export default function WatermarkPDF() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
   const [text, setText] = useState('CONFIDENTIAL')
   const [opacity, setOpacity] = useState(30)
@@ -65,18 +67,19 @@ export default function WatermarkPDF() {
 
       <div className="space-y-4">
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">워터마크 텍스트</label>
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('watermark.text')}</label>
           <input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
+            placeholder={t('watermark.text.placeholder')}
             className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white"
           />
         </div>
 
         <div className="space-y-1">
           <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            투명도: {opacity}%
+            {t('watermark.opacity', opacity)}
           </label>
           <input
             type="range"
@@ -90,7 +93,7 @@ export default function WatermarkPDF() {
 
         <div className="space-y-1">
           <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            글자 크기: {fontSize}px
+            {t('watermark.fontSize', fontSize)}
           </label>
           <input
             type="range"
@@ -103,11 +106,11 @@ export default function WatermarkPDF() {
         </div>
       </div>
 
-      {loading && <ProgressBar value={progress} label="워터마크 적용 중..." />}
+      {loading && <ProgressBar value={progress} label={t('watermark.running')} />}
 
       <Button onClick={apply} loading={loading} disabled={!file || !text.trim()} size="lg" className="w-full justify-center">
         <Download className="w-4 h-4" />
-        워터마크 적용하기
+        {t('watermark.run')}
       </Button>
     </div>
   )

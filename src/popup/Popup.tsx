@@ -1,21 +1,30 @@
-import { FileText, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, ExternalLink, PenLine, ShieldOff, LayoutGrid, ScanText } from 'lucide-react'
+import { GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, ExternalLink, PenLine, ShieldOff, LayoutGrid, ScanText, Eye, FilePenLine, FileText, FileSpreadsheet } from 'lucide-react'
+import { useT } from '@/lib/i18n'
 
-const TOOLS = [
-  { name: 'PDF 합치기', icon: GitMerge, color: 'text-blue-600', tool: 'merge' },
-  { name: 'PDF 분할', icon: Scissors, color: 'text-red-500', tool: 'split' },
-  { name: 'PDF 압축', icon: Minimize2, color: 'text-green-600', tool: 'compress' },
-  { name: 'PDF → 이미지', icon: Image, color: 'text-purple-600', tool: 'to-image' },
-  { name: '이미지 → PDF', icon: Images, color: 'text-orange-500', tool: 'from-image' },
-  { name: '페이지 회전', icon: RotateCw, color: 'text-blue-500', tool: 'rotate' },
-  { name: '페이지 정리', icon: LayoutGrid, color: 'text-purple-500', tool: 'organize' },
-  { name: 'PDF 서명', icon: PenLine, color: 'text-green-500', tool: 'sign' },
-  { name: '워터마크', icon: Droplets, color: 'text-slate-500', tool: 'watermark' },
-  { name: '비밀번호 보호', icon: Lock, color: 'text-red-600', tool: 'protect' },
-  { name: '메타데이터 제거', icon: ShieldOff, color: 'text-slate-400', tool: 'remove-metadata' },
-  { name: 'OCR 텍스트 추출', icon: ScanText, color: 'text-blue-500', tool: 'ocr' },
-]
+const TOOL_DEFS = [
+  { nameKey: 'tool.merge.name', icon: GitMerge, color: 'text-blue-600', tool: 'merge' },
+  { nameKey: 'tool.split.name', icon: Scissors, color: 'text-red-500', tool: 'split' },
+  { nameKey: 'tool.compress.name', icon: Minimize2, color: 'text-green-600', tool: 'compress' },
+  { nameKey: 'tool.toImage.name', icon: Image, color: 'text-purple-600', tool: 'to-image' },
+  { nameKey: 'tool.fromImage.name', icon: Images, color: 'text-orange-500', tool: 'from-image' },
+  { nameKey: 'tool.rotate.name', icon: RotateCw, color: 'text-blue-500', tool: 'rotate' },
+  { nameKey: 'tool.organize.name', icon: LayoutGrid, color: 'text-purple-500', tool: 'organize' },
+  { nameKey: 'tool.sign.name', icon: PenLine, color: 'text-green-500', tool: 'sign' },
+  { nameKey: 'tool.watermark.name', icon: Droplets, color: 'text-slate-500', tool: 'watermark' },
+  { nameKey: 'tool.protect.name', icon: Lock, color: 'text-red-600', tool: 'protect' },
+  { nameKey: 'tool.removeMetadata.name', icon: ShieldOff, color: 'text-slate-400', tool: 'remove-metadata' },
+  { nameKey: 'tool.ocr.name', icon: ScanText, color: 'text-blue-500', tool: 'ocr' },
+  { nameKey: 'tool.viewer.name', icon: Eye, color: 'text-slate-500', tool: 'viewer' },
+  { nameKey: 'tool.editor.name', icon: FilePenLine, color: 'text-green-500', tool: 'editor' },
+  { nameKey: 'tool.pdfToWord.name', icon: FileText, color: 'text-blue-500', tool: 'pdf-to-word', pro: true },
+  { nameKey: 'tool.pdfToExcel.name', icon: FileSpreadsheet, color: 'text-green-500', tool: 'pdf-to-excel', pro: true },
+  { nameKey: 'tool.wordToPdf.name', icon: FileText, color: 'text-blue-500', tool: 'word-to-pdf', pro: true },
+  { nameKey: 'tool.excelToPdf.name', icon: FileSpreadsheet, color: 'text-green-500', tool: 'excel-to-pdf', pro: true },
+] as const
 
 export default function Popup() {
+  const { t, lang, setLang } = useT()
+
   const openTool = (tool: string) => {
     const url = chrome.runtime.getURL(`src/pages/index.html#${tool}`)
     chrome.tabs.create({ url })
@@ -30,37 +39,48 @@ export default function Popup() {
     <div className="w-[380px] bg-white dark:bg-slate-900 font-sans">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-            <FileText className="w-3.5 h-3.5 text-white" />
-          </div>
+          <img src="/icons/icon48.png" className="w-7 h-7 rounded-lg" alt="AlwaysPDF Tools" />
           <span className="font-bold text-slate-800 dark:text-white text-sm">AlwaysPDF Tools</span>
         </div>
-        <button
-          onClick={openMain}
-          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
-        >
-          전체 화면 <ExternalLink className="w-3 h-3" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
+            className="px-2 py-1 rounded text-[10px] font-semibold border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            {lang === 'ko' ? 'EN' : 'KO'}
+          </button>
+          <button
+            onClick={openMain}
+            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
+          >
+            {t('app.fullscreen')} <ExternalLink className="w-3 h-3" />
+          </button>
+        </div>
       </div>
 
       <div className="p-3 grid grid-cols-2 gap-2">
-        {TOOLS.map((tool) => {
-          const Icon = tool.icon
+        {TOOL_DEFS.map((def) => {
+          const Icon = def.icon
           return (
             <button
-              key={tool.tool}
-              onClick={() => openTool(tool.tool)}
+              key={def.tool}
+              onClick={() => openTool(def.tool)}
               className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-left"
             >
-              <Icon className={`w-4 h-4 flex-shrink-0 ${tool.color}`} />
-              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{tool.name}</span>
+              <Icon className={`w-4 h-4 flex-shrink-0 ${def.color}`} />
+              <span className="min-w-0 flex-1 text-xs font-medium text-slate-700 dark:text-slate-300">{t(def.nameKey)}</span>
+              {'pro' in def && def.pro && (
+                <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                  {t('common.pro')}
+                </span>
+              )}
             </button>
           )
         })}
       </div>
 
       <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-800">
-        <p className="text-[10px] text-slate-400 text-center">모든 파일은 브라우저에서만 처리됩니다</p>
+        <p className="text-[10px] text-slate-400 text-center">{t('app.footer')}</p>
       </div>
     </div>
   )

@@ -4,16 +4,12 @@ import FileDropZone from '@/components/ui/FileDropZone'
 import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { readFileAsArrayBuffer } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 
 type Lang = 'kor' | 'eng' | 'kor+eng'
 
-const LANGS: { value: Lang; label: string }[] = [
-  { value: 'kor', label: '한국어' },
-  { value: 'eng', label: '영어' },
-  { value: 'kor+eng', label: '한국어 + 영어' },
-]
-
 export default function OCRTool() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
   const [lang, setLang] = useState<Lang>('kor+eng')
   const [loading, setLoading] = useState(false)
@@ -22,6 +18,12 @@ export default function OCRTool() {
   const [result, setResult] = useState('')
   const [copied, setCopied] = useState(false)
   const abortRef = useRef(false)
+
+  const LANGS: { value: Lang; label: string }[] = [
+    { value: 'kor', label: t('ocr.lang.ko') },
+    { value: 'eng', label: t('ocr.lang.en') },
+    { value: 'kor+eng', label: t('ocr.lang.koEn') },
+  ]
 
   const onFile = (files: File[]) => {
     setFile(files[0] ?? null)
@@ -32,7 +34,7 @@ export default function OCRTool() {
     if (!file) return
     setLoading(true)
     setProgress(0)
-    setProgressLabel('언어 데이터 로딩 중... (첫 실행 시 수십 초 소요)')
+    setProgressLabel(t('ocr.status.loading'))
     setResult('')
     abortRef.current = false
 
@@ -48,12 +50,12 @@ export default function OCRTool() {
         logger: (m: { status: string; progress: number }) => {
           if (m.status === 'recognizing text') {
             setProgress(Math.round(m.progress * 100))
-            setProgressLabel('텍스트 인식 중...')
+            setProgressLabel(t('ocr.status.recognizing'))
           } else if (m.status === 'loading language traineddata') {
-            setProgressLabel('언어 데이터 로딩 중...')
+            setProgressLabel(t('ocr.status.langData'))
             setProgress(10)
           } else if (m.status === 'initializing api') {
-            setProgressLabel('OCR 엔진 초기화 중...')
+            setProgressLabel(t('ocr.status.init'))
             setProgress(20)
           }
         },
@@ -62,7 +64,6 @@ export default function OCRTool() {
       let text = ''
 
       if (file.type === 'application/pdf') {
-        // PDF → 이미지 변환 후 OCR
         const pdfjsLib = await import('pdfjs-dist')
         pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
           'pdfjs-dist/build/pdf.worker.mjs',
@@ -73,7 +74,7 @@ export default function OCRTool() {
 
         for (let i = 1; i <= pdf.numPages; i++) {
           if (abortRef.current) break
-          setProgressLabel(`${i} / ${pdf.numPages} 페이지 처리 중...`)
+          setProgressLabel(t('ocr.status.page', i, pdf.numPages))
           setProgress(Math.round((i / pdf.numPages) * 60))
 
           const page = await pdf.getPage(i)
@@ -85,10 +86,10 @@ export default function OCRTool() {
           await page.render({ canvasContext: ctx, viewport, canvas }).promise
 
           const { data } = await worker.recognize(canvas)
-          text += `\n--- 페이지 ${i} ---\n${data.text}`
+          text += `\n${t('ocr.page', i)}\n${data.text}`
         }
       } else {
-        setProgressLabel('이미지 인식 중...')
+        setProgressLabel(t('ocr.status.imgRecognizing'))
         const { data } = await worker.recognize(file)
         text = data.text
       }
@@ -96,9 +97,9 @@ export default function OCRTool() {
       await worker.terminate()
       setResult(text.trim())
       setProgress(100)
-      setProgressLabel('완료!')
+      setProgressLabel(t('ocr.status.done'))
     } catch (e) {
-      setResult(`오류가 발생했습니다: ${String(e)}`)
+      setResult(`${t('common.error')}: ${String(e)}`)
     } finally {
       setLoading(false)
     }
@@ -110,7 +111,7 @@ export default function OCRTool() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const download = () => {
+  const downloadTxt = () => {
     const blob = new Blob([result], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -127,8 +128,8 @@ export default function OCRTool() {
       <FileDropZone
         accept={accept}
         onFiles={onFile}
-        label="PDF 또는 이미지를 드래그하거나 클릭해서 선택하세요"
-        sublabel="PDF, JPG, PNG, WEBP, BMP, TIFF 지원"
+        label={t('dropzone.imgLabel')}
+        sublabel={t('dropzone.imgSublabel')}
       />
 
       {file && (
@@ -139,7 +140,7 @@ export default function OCRTool() {
       )}
 
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">인식 언어</p>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('ocr.lang')}</p>
         <div className="grid grid-cols-3 gap-2">
           {LANGS.map((l) => (
             <button
@@ -161,27 +162,27 @@ export default function OCRTool() {
 
       <Button onClick={run} loading={loading} disabled={!file} size="lg" className="w-full justify-center">
         <ScanText className="w-4 h-4" />
-        텍스트 인식 시작
+        {t('ocr.run')}
       </Button>
 
       {result && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">인식 결과</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('ocr.result')}</p>
             <div className="flex gap-2">
               <button
                 onClick={copy}
                 className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
                 <Copy className="w-3.5 h-3.5" />
-                {copied ? '복사됨!' : '복사'}
+                {copied ? t('common.copied') : t('common.copy')}
               </button>
               <button
-                onClick={download}
+                onClick={downloadTxt}
                 className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
-                .txt 저장
+                {t('ocr.saveTxt')}
               </button>
             </div>
           </div>
@@ -191,7 +192,7 @@ export default function OCRTool() {
             rows={12}
             className="w-full px-4 py-3 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 resize-y font-mono leading-relaxed"
           />
-          <p className="text-xs text-slate-400 text-right">{result.length.toLocaleString()}자</p>
+          <p className="text-xs text-slate-400 text-right">{result.length.toLocaleString()} {t('ocr.chars')}</p>
         </div>
       )}
     </div>

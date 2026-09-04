@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { PDFDocument } from 'pdf-lib'
 import { downloadBlob, formatFileSize, getFilenameWithoutExt, readFileAsArrayBuffer, uint8ToBlob } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 
 interface PageItem {
   originalIndex: number
@@ -12,6 +13,7 @@ interface PageItem {
 }
 
 export default function OrganizePages() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
   const [pages, setPages] = useState<PageItem[]>([])
   const [loading, setLoading] = useState(false)
@@ -25,7 +27,7 @@ export default function OrganizePages() {
     const buf = await readFileAsArrayBuffer(f)
     const doc = await PDFDocument.load(buf)
     const count = doc.getPageCount()
-    setPages(Array.from({ length: count }, (_, i) => ({ originalIndex: i, label: `페이지 ${i + 1}` })))
+    setPages(Array.from({ length: count }, (_, i) => ({ originalIndex: i, label: `${t('organize.page')} ${i + 1}` })))
   }
 
   const remove = (idx: number) => setPages((prev) => prev.filter((_, i) => i !== idx))
@@ -76,14 +78,14 @@ export default function OrganizePages() {
       {file && (
         <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
           <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{file.name}</p>
-          <p className="text-xs text-slate-400">{formatFileSize(file.size)} · {pages.length}페이지</p>
+          <p className="text-xs text-slate-400">{formatFileSize(file.size)} · {pages.length} {t('organize.page').toLowerCase()}</p>
         </div>
       )}
 
       {pages.length > 0 && (
         <div className="space-y-2">
           <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            페이지 순서 조정 <span className="text-xs font-normal text-slate-400">(드래그로 순서 변경)</span>
+            {t('organize.reorder')} <span className="text-xs font-normal text-slate-400">({t('organize.dragHint')})</span>
           </p>
           <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1">
             {pages.map((p, i) => (
@@ -107,11 +109,11 @@ export default function OrganizePages() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-slate-400">{pages.length}페이지 선택됨</p>
+          <p className="text-xs text-slate-400">{t('organize.selected', pages.length)}</p>
         </div>
       )}
 
-      {loading && <ProgressBar value={progress} label="페이지 재구성 중..." />}
+      {loading && <ProgressBar value={progress} label={t('organize.running')} />}
 
       <Button
         onClick={save}
@@ -121,7 +123,7 @@ export default function OrganizePages() {
         className="w-full justify-center"
       >
         <Download className="w-4 h-4" />
-        재구성된 PDF 저장
+        {t('organize.run')}
       </Button>
     </div>
   )

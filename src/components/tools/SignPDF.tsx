@@ -5,8 +5,10 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { PDFDocument } from 'pdf-lib'
 import { downloadBlob, formatFileSize, getFilenameWithoutExt, readFileAsArrayBuffer, uint8ToBlob } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 
 export default function SignPDF() {
+  const { t } = useT()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [drawing, setDrawing] = useState(false)
   const [hasSignature, setHasSignature] = useState(false)
@@ -134,9 +136,9 @@ export default function SignPDF() {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">서명 그리기</p>
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('sign.draw')}</p>
           <button onClick={clearCanvas} className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 transition-colors">
-            <Trash2 className="w-3.5 h-3.5" /> 지우기
+            <Trash2 className="w-3.5 h-3.5" /> {t('sign.clear')}
           </button>
         </div>
         <canvas
@@ -152,12 +154,12 @@ export default function SignPDF() {
           onTouchMove={draw}
           onTouchEnd={endDraw}
         />
-        <p className="text-xs text-slate-400 text-center">마우스 또는 터치로 서명하세요</p>
+        <p className="text-xs text-slate-400 text-center">{t('sign.hint')}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">삽입 페이지</label>
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('sign.page')}</label>
           <input
             type="number"
             min={1}
@@ -167,20 +169,20 @@ export default function SignPDF() {
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">위치</label>
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('sign.position')}</label>
           <select
             value={position}
             onChange={(e) => setPosition(e.target.value as typeof position)}
             className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white"
           >
-            <option value="bottom-right">우측 하단</option>
-            <option value="bottom-left">좌측 하단</option>
-            <option value="bottom-center">중앙 하단</option>
+            <option value="bottom-right">{t('sign.pos.bottomRight')}</option>
+            <option value="bottom-left">{t('sign.pos.bottomLeft')}</option>
+            <option value="bottom-center">{t('sign.pos.bottomCenter')}</option>
           </select>
         </div>
       </div>
 
-      {loading && <ProgressBar value={progress} label="서명 삽입 중..." />}
+      {loading && <ProgressBar value={progress} label={t('sign.running')} />}
 
       <Button
         onClick={applySign}
@@ -190,7 +192,7 @@ export default function SignPDF() {
         className="w-full justify-center"
       >
         <Download className="w-4 h-4" />
-        서명 삽입 후 저장
+        {t('sign.run')}
       </Button>
     </div>
   )

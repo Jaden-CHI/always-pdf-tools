@@ -11,6 +11,12 @@ export type ToolId =
   | 'protect'
   | 'remove-metadata'
   | 'ocr'
+  | 'viewer'
+  | 'editor'
+  | 'pdf-to-word'
+  | 'pdf-to-excel'
+  | 'word-to-pdf'
+  | 'excel-to-pdf'
 
 export interface Tool {
   id: ToolId

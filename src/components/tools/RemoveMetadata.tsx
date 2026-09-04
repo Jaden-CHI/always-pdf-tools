@@ -5,10 +5,12 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { PDFDocument } from 'pdf-lib'
 import { downloadBlob, formatFileSize, getFilenameWithoutExt, readFileAsArrayBuffer, uint8ToBlob } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 
 const FIELDS = ['Title', 'Author', 'Subject', 'Keywords', 'Creator', 'Producer', 'CreationDate', 'ModificationDate']
 
 export default function RemoveMetadata() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -59,7 +61,7 @@ export default function RemoveMetadata() {
       )}
 
       <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl space-y-2">
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">제거되는 메타데이터</p>
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('removeMetadata.fields')}</p>
         <div className="flex flex-wrap gap-2">
           {FIELDS.map((f) => (
             <span key={f} className="text-xs px-2 py-1 bg-white dark:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
@@ -72,15 +74,15 @@ export default function RemoveMetadata() {
       {done && (
         <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
           <ShieldCheck className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-          <p className="text-sm text-green-700 dark:text-green-400">메타데이터가 제거된 PDF가 저장됐습니다.</p>
+          <p className="text-sm text-green-700 dark:text-green-400">{t('removeMetadata.done')}</p>
         </div>
       )}
 
-      {loading && <ProgressBar value={progress} label="메타데이터 제거 중..." />}
+      {loading && <ProgressBar value={progress} label={t('removeMetadata.running')} />}
 
       <Button onClick={remove} loading={loading} disabled={!file} size="lg" className="w-full justify-center">
         <Download className="w-4 h-4" />
-        메타데이터 제거 후 저장
+        {t('removeMetadata.run')}
       </Button>
     </div>
   )

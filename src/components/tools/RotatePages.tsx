@@ -5,10 +5,12 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { PDFDocument, degrees } from 'pdf-lib'
 import { downloadBlob, formatFileSize, getFilenameWithoutExt, readFileAsArrayBuffer, uint8ToBlob } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 
 const ANGLES = [90, 180, 270]
 
 export default function RotatePages() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
   const [angle, setAngle] = useState(90)
   const [target, setTarget] = useState<'all' | 'even' | 'odd'>('all')
@@ -47,6 +49,12 @@ export default function RotatePages() {
     }
   }
 
+  const TARGET_OPTIONS = [
+    { value: 'all' as const, label: t('rotate.target.all') },
+    { value: 'odd' as const, label: t('rotate.target.odd') },
+    { value: 'even' as const, label: t('rotate.target.even') },
+  ]
+
   return (
     <div className="space-y-6">
       <FileDropZone onFiles={onFile} />
@@ -59,7 +67,7 @@ export default function RotatePages() {
       )}
 
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">회전 각도</p>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('rotate.angle')}</p>
         <div className="grid grid-cols-3 gap-2">
           {ANGLES.map((a) => (
             <button
@@ -79,29 +87,29 @@ export default function RotatePages() {
       </div>
 
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">적용 대상</p>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('rotate.target')}</p>
         <div className="grid grid-cols-3 gap-2">
-          {([['all', '전체'], ['odd', '홀수 페이지'], ['even', '짝수 페이지']] as const).map(([v, l]) => (
+          {TARGET_OPTIONS.map(({ value, label }) => (
             <button
-              key={v}
-              onClick={() => setTarget(v)}
+              key={value}
+              onClick={() => setTarget(value)}
               className={`py-2 rounded-lg text-xs font-medium border transition-colors ${
-                target === v
+                target === value
                   ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                   : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-blue-300'
               }`}
             >
-              {l}
+              {label}
             </button>
           ))}
         </div>
       </div>
 
-      {loading && <ProgressBar value={progress} label="회전 중..." />}
+      {loading && <ProgressBar value={progress} label={t('rotate.running')} />}
 
       <Button onClick={rotate} loading={loading} disabled={!file} size="lg" className="w-full justify-center">
         <Download className="w-4 h-4" />
-        회전 후 저장하기
+        {t('rotate.run')}
       </Button>
     </div>
   )

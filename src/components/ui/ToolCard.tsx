@@ -6,6 +6,7 @@ interface ToolCardProps {
   description: string
   onClick: () => void
   color?: string
+  badge?: string
 }
 
 export default function ToolCard({
@@ -14,6 +15,7 @@ export default function ToolCard({
   description,
   onClick,
   color = 'blue',
+  badge,
 }: ToolCardProps) {
   const colorMap: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
@@ -29,8 +31,15 @@ export default function ToolCard({
       onClick={onClick}
       className="flex flex-col items-start gap-3 p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-md transition-all bg-white dark:bg-slate-900 text-left w-full group"
     >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorMap[color] ?? colorMap.blue}`}>
-        <Icon className="w-5 h-5" />
+      <div className="w-full flex items-start justify-between gap-2">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorMap[color] ?? colorMap.blue}`}>
+          <Icon className="w-5 h-5" />
+        </div>
+        {badge && (
+          <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+            {badge}
+          </span>
+        )}
       </div>
       <div>
         <p className="text-sm font-semibold text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">

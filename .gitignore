@@ -10,6 +10,12 @@ lerna-debug.log*
 node_modules
 dist-ssr
 *.local
+.venv
+server/.venv
+server/.env
+server/tmp
+__pycache__/
+*.py[cod]
 
 # Editor directories and files
 .vscode/*

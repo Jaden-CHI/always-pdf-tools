@@ -21,14 +21,35 @@ export async function protectPDF(file: File, _password: string): Promise<Process
   }
 }
 
-export async function unlockPDF(file: File, _password: string): Promise<ProcessResult> {
+export async function unlockPDF(file: File, password: string): Promise<ProcessResult> {
   try {
     const buf = await readFileAsArrayBuffer(file)
-    const src = await PDFDocument.load(buf, { ignoreEncryption: true })
-    const doc = await PDFDocument.create()
-    const pages = await doc.copyPages(src, src.getPageIndices())
-    pages.forEach((p) => doc.addPage(p))
-    const bytes = await doc.save()
+    const { createQpdfRunner } = await import('qpdf-run')
+    const qpdf = await createQpdfRunner({
+      workerUrl: new URL('qpdf-run/worker', import.meta.url).href,
+      qpdfJsUrl: new URL('qpdf-run/qpdf.js', import.meta.url).href,
+      wasmUrl: new URL('qpdf-run/qpdf.wasm', import.meta.url).href,
+      timeoutMs: 60000,
+    })
+
+    let bytes: Uint8Array
+    try {
+      bytes = await qpdf.runOne({
+        input: new Uint8Array(buf),
+        inputName: 'input.pdf',
+        outputName: 'output.pdf',
+        args: [
+          `--password=${password}`,
+          '--decrypt',
+          '--',
+          'input.pdf',
+          'output.pdf',
+        ],
+      })
+    } finally {
+      await qpdf.destroy()
+    }
+
     const base = getFilenameWithoutExt(file.name)
     return {
       success: true,
@@ -36,6 +57,12 @@ export async function unlockPDF(file: File, _password: string): Promise<ProcessR
       filename: `${base}_unlocked.pdf`,
     }
   } catch (e) {
-    return { success: false, error: '파일을 처리할 수 없습니다. 암호화된 PDF는 지원이 제한될 수 있습니다.' }
+    const message = e instanceof Error ? e.message : String(e)
+    return {
+      success: false,
+      error: message.includes('invalid password') || message.includes('password')
+        ? '비밀번호가 올바르지 않거나 이 PDF 암호화 방식은 지원되지 않습니다.'
+        : '암호 해제 중 오류가 발생했습니다. 다른 암호화 방식의 PDF일 수 있습니다.',
+    }
   }
 }

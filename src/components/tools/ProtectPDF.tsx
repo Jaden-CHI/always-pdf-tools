@@ -5,10 +5,12 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { protectPDF, unlockPDF } from '@/lib/pdf-protect'
 import { downloadBlob, formatFileSize } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 
 export default function ProtectPDF() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
-  const [mode, setMode] = useState<'protect' | 'unlock'>('protect')
+  const [mode, setMode] = useState<'protect' | 'unlock'>('unlock')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -32,31 +34,34 @@ export default function ProtectPDF() {
     if (result.success && result.blob) {
       downloadBlob(result.blob, result.filename!)
     } else {
-      setError(result.error ?? '처리 중 오류가 발생했습니다.')
+      setError(result.error ?? t('common.error'))
     }
     setLoading(false)
     setProgress(0)
   }
 
+  const MODE_OPTIONS = [
+    { value: 'protect' as const, label: t('protect.mode.protect'), Icon: Lock },
+    { value: 'unlock' as const, label: t('protect.mode.unlock'), Icon: Unlock },
+  ]
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-2">
-        {([['protect', '비밀번호 설정', Lock], ['unlock', '비밀번호 해제', Unlock]] as const).map(
-          ([m, label, Icon]) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
-                mode === m
-                  ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                  : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-blue-300'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </button>
-          )
-        )}
+        {MODE_OPTIONS.map(({ value, label, Icon }) => (
+          <button
+            key={value}
+            onClick={() => setMode(value)}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+              mode === value
+                ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-blue-300'
+            }`}
+          >
+            <Icon className="w-4 h-4" />
+            {label}
+          </button>
+        ))}
       </div>
 
       <FileDropZone onFiles={onFile} />
@@ -70,16 +75,20 @@ export default function ProtectPDF() {
 
       <div className="space-y-1">
         <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-          {mode === 'protect' ? '설정할 비밀번호' : '현재 비밀번호'}
+          {mode === 'protect' ? t('protect.password') : t('protect.unlock.password')}
         </label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="비밀번호 입력"
+          placeholder={mode === 'protect' ? t('protect.password.placeholder') : t('protect.unlock.password.placeholder')}
           className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white"
         />
       </div>
+
+      <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+        {mode === 'protect' ? t('protect.notice') : t('protect.unlock.notice')}
+      </p>
 
       {error && (
         <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
@@ -87,7 +96,12 @@ export default function ProtectPDF() {
         </p>
       )}
 
-      {loading && <ProgressBar value={progress} label={mode === 'protect' ? '보호 적용 중...' : '잠금 해제 중...'} />}
+      {loading && (
+        <ProgressBar
+          value={progress}
+          label={mode === 'protect' ? t('protect.running.protect') : t('protect.running.unlock')}
+        />
+      )}
 
       <Button
         onClick={process}
@@ -97,7 +111,7 @@ export default function ProtectPDF() {
         className="w-full justify-center"
       >
         <Download className="w-4 h-4" />
-        {mode === 'protect' ? '비밀번호 설정 후 저장' : '잠금 해제 후 저장'}
+        {mode === 'protect' ? t('protect.run.protect') : t('protect.run.unlock')}
       </Button>
     </div>
   )

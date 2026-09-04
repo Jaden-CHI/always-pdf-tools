@@ -1,5 +1,6 @@
 import { useRef, type DragEvent, type ChangeEvent } from 'react'
 import { Upload } from 'lucide-react'
+import { useT } from '@/lib/i18n'
 
 interface FileDropZoneProps {
   accept?: string
@@ -13,10 +14,12 @@ export default function FileDropZone({
   accept = '.pdf',
   multiple = false,
   onFiles,
-  label = 'PDF 파일을 드래그하거나 클릭해서 선택하세요',
+  label,
   sublabel,
 }: FileDropZoneProps) {
+  const { t } = useT()
   const inputRef = useRef<HTMLInputElement>(null)
+  const resolvedLabel = label ?? t('dropzone.label')
 
   const handle = (files: FileList | null) => {
     if (!files) return
@@ -40,7 +43,7 @@ export default function FileDropZone({
       <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
         <Upload className="w-7 h-7 text-blue-600 dark:text-blue-400" />
       </div>
-      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 text-center">{label}</p>
+      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 text-center">{resolvedLabel}</p>
       {sublabel && <p className="text-xs text-slate-400">{sublabel}</p>}
       <input
         ref={inputRef}

@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client'
 import '../index.css'
 import Popup from './Popup'
 import App from '../pages/App'
+import { LangProvider } from '../lib/i18n'
 
 const isPopup = window.location.pathname.includes('popup')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {isPopup ? <Popup /> : <App />}
+    <LangProvider>
+      {isPopup ? <Popup /> : <App />}
+    </LangProvider>
   </StrictMode>
 )

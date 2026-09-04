@@ -5,9 +5,11 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { mergePDFs } from '@/lib/pdf-merge'
 import { downloadBlob, formatFileSize, generateId } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 import type { PDFFile } from '@/types'
 
 export default function MergePDF() {
+  const { t } = useT()
   const [files, setFiles] = useState<PDFFile[]>([])
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -36,7 +38,7 @@ export default function MergePDF() {
 
   return (
     <div className="space-y-6">
-      <FileDropZone multiple onFiles={addFiles} sublabel="PDF 파일만 지원됩니다" />
+      <FileDropZone multiple onFiles={addFiles} sublabel={t('dropzone.sublabel')} />
 
       {files.length > 0 && (
         <div className="space-y-2">
@@ -55,7 +57,7 @@ export default function MergePDF() {
         </div>
       )}
 
-      {loading && <ProgressBar value={progress} label="병합 중..." />}
+      {loading && <ProgressBar value={progress} label={t('merge.running')} />}
 
       <Button
         onClick={merge}
@@ -65,7 +67,7 @@ export default function MergePDF() {
         className="w-full justify-center"
       >
         <Download className="w-4 h-4" />
-        PDF 병합하기 ({files.length}개)
+        {t('merge.run')} ({t('merge.fileCount', files.length)})
       </Button>
     </div>
   )

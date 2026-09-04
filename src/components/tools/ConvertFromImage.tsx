@@ -5,9 +5,11 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { imagesToPDF } from '@/lib/pdf-convert'
 import { downloadBlob, formatFileSize, generateId } from '@/lib/file-utils'
+import { useT } from '@/lib/i18n'
 import type { PDFFile } from '@/types'
 
 export default function ConvertFromImage() {
+  const { t } = useT()
   const [files, setFiles] = useState<PDFFile[]>([])
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -38,8 +40,8 @@ export default function ConvertFromImage() {
         accept=".jpg,.jpeg,.png,.webp"
         multiple
         onFiles={addFiles}
-        label="이미지 파일을 드래그하거나 클릭해서 선택하세요"
-        sublabel="JPG, PNG, WEBP 지원"
+        label={t('fromImage.imgLabel')}
+        sublabel={t('fromImage.imgSublabel')}
       />
 
       {files.length > 0 && (
@@ -58,11 +60,11 @@ export default function ConvertFromImage() {
         </div>
       )}
 
-      {loading && <ProgressBar value={progress} label="PDF로 변환 중..." />}
+      {loading && <ProgressBar value={progress} label={t('fromImage.converting')} />}
 
       <Button onClick={convert} loading={loading} disabled={files.length === 0} size="lg" className="w-full justify-center">
         <Download className="w-4 h-4" />
-        PDF로 변환하기 ({files.length}개)
+        {t('fromImage.run')} ({t('fromImage.fileCount', files.length)})
       </Button>
     </div>
   )

@@ -5,19 +5,21 @@ import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { compressPDF } from '@/lib/pdf-compress'
 import { downloadBlob, formatFileSize } from '@/lib/file-utils'
-
-const LEVELS = [
-  { label: '낮음 (최대 압축)', value: 40 },
-  { label: '보통 (권장)', value: 65 },
-  { label: '높음 (고품질)', value: 85 },
-]
+import { useT } from '@/lib/i18n'
 
 export default function CompressPDF() {
+  const { t } = useT()
   const [file, setFile] = useState<File | null>(null)
   const [quality, setQuality] = useState(65)
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [result, setResult] = useState<{ original: number; compressed: number } | null>(null)
+
+  const LEVELS = [
+    { label: t('compress.quality.low'), value: 40 },
+    { label: t('compress.quality.medium'), value: 65 },
+    { label: t('compress.quality.high'), value: 85 },
+  ]
 
   const onFile = (files: File[]) => {
     setFile(files[0] ?? null)
@@ -52,7 +54,7 @@ export default function CompressPDF() {
       )}
 
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">압축 품질</p>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('compress.quality')}</p>
         <div className="grid grid-cols-3 gap-2">
           {LEVELS.map((l) => (
             <button
@@ -72,29 +74,29 @@ export default function CompressPDF() {
 
       {result && (
         <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-          <p className="text-sm font-semibold text-green-700 dark:text-green-400">압축 완료!</p>
+          <p className="text-sm font-semibold text-green-700 dark:text-green-400">{t('compress.result')}</p>
           <div className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
             <div>
-              <p className="text-slate-500">원본</p>
+              <p className="text-slate-500">{t('compress.before')}</p>
               <p className="font-medium text-slate-700 dark:text-slate-200">{formatFileSize(result.original)}</p>
             </div>
             <div>
-              <p className="text-slate-500">압축 후</p>
+              <p className="text-slate-500">{t('compress.after')}</p>
               <p className="font-medium text-slate-700 dark:text-slate-200">{formatFileSize(result.compressed)}</p>
             </div>
             <div>
-              <p className="text-slate-500">절감</p>
+              <p className="text-slate-500">{t('compress.ratio')}</p>
               <p className="font-bold text-green-600 dark:text-green-400">{saved}%</p>
             </div>
           </div>
         </div>
       )}
 
-      {loading && <ProgressBar value={progress} label="압축 중..." />}
+      {loading && <ProgressBar value={progress} label={t('compress.running')} />}
 
       <Button onClick={compress} loading={loading} disabled={!file} size="lg" className="w-full justify-center">
         <Download className="w-4 h-4" />
-        PDF 압축하기
+        {t('compress.run')}
       </Button>
     </div>
   )

@@ -1,0 +1,14 @@
+services:
+  alwayspdf-pro-api:
+    build: .
+    container_name: alwayspdf-pro-api
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "127.0.0.1:8000:8000"
+    tmpfs:
+      - /tmp/alwayspdf-pro:size=512m,mode=1777
+    security_opt:
+      - no-new-privileges:true
