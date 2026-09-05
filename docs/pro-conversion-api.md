@@ -65,6 +65,6 @@ Use the matching content type:
 ## Suggested VPS Engine
 
 - Word/Excel to PDF: LibreOffice headless
-- PDF to Word: `pdf2docx` or commercial API fallback
+- PDF to Word: `pdf2docx`
 - PDF to Excel: `pdfplumber`, Camelot, or Tabula-style extraction
 - Scanned PDFs: OCR pipeline before conversion

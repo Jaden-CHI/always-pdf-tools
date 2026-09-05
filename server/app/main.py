@@ -9,7 +9,9 @@ from app.converter import (
     EXCEL_EXTENSIONS,
     WORD_EXTENSIONS,
     cleanup_file_parent,
+    prepare_pdf_upload,
     prepare_office_upload,
+    run_pdf_to_docx,
     run_soffice,
     save_upload,
 )
@@ -54,6 +56,28 @@ async def convert_office_file(
     )
 
 
+async def convert_pdf_to_word_file(
+    file: UploadFile,
+    background_tasks: BackgroundTasks,
+    settings: Settings,
+) -> FileResponse:
+    input_path, output_stem = prepare_pdf_upload(file, settings)
+
+    try:
+        await save_upload(file, input_path, settings.max_upload_bytes)
+        docx_path, filename = run_pdf_to_docx(input_path, output_stem, settings)
+    except Exception:
+        cleanup_file_parent(input_path)
+        raise
+
+    background_tasks.add_task(cleanup_file_parent, Path(docx_path))
+    return FileResponse(
+        path=docx_path,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename=filename,
+    )
+
+
 @app.post("/convert/word-to-pdf")
 async def word_to_pdf(
     background_tasks: BackgroundTasks,
@@ -73,8 +97,12 @@ async def excel_to_pdf(
 
 
 @app.post("/convert/pdf-to-word")
-async def pdf_to_word() -> None:
-    raise HTTPException(status_code=501, detail="PDF to Word conversion engine is not implemented yet.")
+async def pdf_to_word(
+    background_tasks: BackgroundTasks,
+    file: UploadFile,
+    settings: Settings = Depends(get_settings),
+) -> FileResponse:
+    return await convert_pdf_to_word_file(file, background_tasks, settings)
 
 
 @app.post("/convert/pdf-to-excel")

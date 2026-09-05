@@ -6,11 +6,11 @@ Server-side conversion API for AlwaysPDF Tools Pro features.
 
 - `POST /convert/word-to-pdf`
 - `POST /convert/excel-to-pdf`
+- `POST /convert/pdf-to-word`
 - `GET /health`
 
 The following routes are reserved and currently return `501`:
 
-- `POST /convert/pdf-to-word`
 - `POST /convert/pdf-to-excel`
 
 ## Local Run
@@ -70,6 +70,7 @@ Example:
 
 ```bash
 curl -F "file=@sample.docx" http://localhost:8000/convert/word-to-pdf -o sample.pdf
+curl -F "file=@sample.pdf" http://localhost:8000/convert/pdf-to-word -o sample.docx
 ```
 
 ## Extension Setup
