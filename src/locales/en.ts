@@ -40,7 +40,7 @@ const en: Record<TKey, string | ((...args: number[]) => string)> = {
   'tool.pdfToWord.name': 'PDF → Word',
   'tool.pdfToWord.desc': 'Convert PDF into editable DOCX',
   'tool.pdfToExcel.name': 'PDF → Excel',
-  'tool.pdfToExcel.desc': 'Extract PDF tables into XLSX',
+  'tool.pdfToExcel.desc': 'Extract table-based PDFs into XLSX',
   'tool.wordToPdf.name': 'Word → PDF',
   'tool.wordToPdf.desc': 'Convert DOCX files to PDF',
   'tool.excelToPdf.name': 'Excel → PDF',
@@ -227,7 +227,7 @@ const en: Record<TKey, string | ((...args: number[]) => string)> = {
   'pro.pdfToWord.title': 'Convert PDF to Word',
   'pro.pdfToWord.desc': 'A server-based advanced feature that analyzes PDF text and layout and converts it into an editable DOCX file.',
   'pro.pdfToExcel.title': 'Extract PDF Tables to Excel',
-  'pro.pdfToExcel.desc': 'A server-based advanced feature that analyzes table structure in PDFs and exports it as XLSX.',
+  'pro.pdfToExcel.desc': 'A server-based advanced feature that analyzes table structure in PDFs and exports it as XLSX. Text-only or scanned PDFs may not contain extractable tables.',
   'pro.wordToPdf.title': 'Convert Word to PDF',
   'pro.wordToPdf.desc': 'A server-based advanced feature that renders DOCX paragraphs, pages, margins, and font flow into PDF.',
   'pro.excelToPdf.title': 'Convert Excel to PDF',
@@ -252,6 +252,12 @@ const en: Record<TKey, string | ((...args: number[]) => string)> = {
   'pro.api.notConfigured': 'The VPS API URL is not configured yet. Set VITE_PRO_API_BASE_URL to enable this feature.',
   'pro.running': 'Converting on the server...',
   'pro.done': 'The converted file download has started.',
+  'pro.error.tooLarge': 'The file is too large. Please try again with a smaller file.',
+  'pro.error.noTables': 'No tables were found in this PDF. PDF → Excel works only with table-based documents.',
+  'pro.error.pdfToWordFailed': 'PDF to Word conversion failed. Scanned or complex PDFs may have limited support.',
+  'pro.error.conversionFailed': 'Conversion failed. Please check the file type or document structure.',
+  'pro.error.timeout': 'The conversion timed out. Please try again with a smaller file.',
+  'pro.error.server': (status: number) => `Server conversion error occurred. (${status})`,
 }
 
 export default en

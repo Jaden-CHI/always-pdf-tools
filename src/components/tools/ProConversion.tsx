@@ -4,7 +4,7 @@ import { useT } from '@/lib/i18n'
 import Button from '@/components/ui/Button'
 import FileDropZone from '@/components/ui/FileDropZone'
 import ProgressBar from '@/components/ui/ProgressBar'
-import { convertWithProApi, isProApiConfigured, type ProConversionType } from '@/lib/pro-conversion-api'
+import { ProConversionError, convertWithProApi, isProApiConfigured, type ProConversionType } from '@/lib/pro-conversion-api'
 import { downloadBlob, getFilenameWithoutExt } from '@/lib/file-utils'
 
 interface ProConversionProps {
@@ -23,6 +23,19 @@ const EXT_MAP: Record<ProConversionType, string> = {
   'pdf-to-excel': 'xlsx',
   'word-to-pdf': 'pdf',
   'excel-to-pdf': 'pdf',
+}
+
+function getFriendlyErrorMessage(error: unknown, t: ReturnType<typeof useT>['t']): string {
+  if (!(error instanceof ProConversionError)) {
+    return error instanceof Error ? error.message : t('common.error')
+  }
+
+  if (error.status === 413) return t('pro.error.tooLarge')
+  if (error.status === 422 && error.detail.includes('No tables')) return t('pro.error.noTables')
+  if (error.status === 422 && error.detail.includes('PDF to Word')) return t('pro.error.pdfToWordFailed')
+  if (error.status === 422) return t('pro.error.conversionFailed')
+  if (error.status === 504) return t('pro.error.timeout')
+  return t('pro.error.server', error.status)
 }
 
 export default function ProConversion({ type }: ProConversionProps) {
@@ -63,7 +76,7 @@ export default function ProConversion({ type }: ProConversionProps) {
       downloadBlob(result.blob, result.filename || fallbackName)
       setDone(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
+      setError(getFriendlyErrorMessage(err, t))
     } finally {
       setLoading(false)
       setTimeout(() => setProgress(0), 800)

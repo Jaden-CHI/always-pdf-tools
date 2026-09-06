@@ -38,7 +38,7 @@ const ko = {
   'tool.pdfToWord.name': 'PDF → Word',
   'tool.pdfToWord.desc': 'PDF를 편집 가능한 DOCX로 변환합니다',
   'tool.pdfToExcel.name': 'PDF → Excel',
-  'tool.pdfToExcel.desc': 'PDF 표를 XLSX로 추출합니다',
+  'tool.pdfToExcel.desc': '표가 있는 PDF를 XLSX로 추출합니다',
   'tool.wordToPdf.name': 'Word → PDF',
   'tool.wordToPdf.desc': 'DOCX 파일을 PDF로 변환합니다',
   'tool.excelToPdf.name': 'Excel → PDF',
@@ -228,7 +228,7 @@ const ko = {
   'pro.pdfToWord.title': 'PDF를 Word로 변환',
   'pro.pdfToWord.desc': '원본 PDF의 텍스트와 배치를 분석해 편집 가능한 DOCX 파일로 변환하는 서버 기반 고급 기능입니다.',
   'pro.pdfToExcel.title': 'PDF 표를 Excel로 추출',
-  'pro.pdfToExcel.desc': 'PDF 안의 표 구조를 분석해 XLSX 파일로 내보내는 서버 기반 고급 기능입니다.',
+  'pro.pdfToExcel.desc': 'PDF 안의 표 구조를 분석해 XLSX 파일로 내보내는 서버 기반 고급 기능입니다. 표가 없는 문서형 PDF나 스캔 PDF는 추출되지 않을 수 있습니다.',
   'pro.wordToPdf.title': 'Word를 PDF로 변환',
   'pro.wordToPdf.desc': 'DOCX 문서의 문단, 페이지, 여백, 글꼴 흐름을 서버에서 렌더링해 PDF로 변환하는 고급 기능입니다.',
   'pro.excelToPdf.title': 'Excel을 PDF로 변환',
@@ -253,6 +253,12 @@ const ko = {
   'pro.api.notConfigured': 'VPS API 주소가 아직 설정되지 않았습니다. VITE_PRO_API_BASE_URL 설정 후 사용할 수 있습니다.',
   'pro.running': '서버에서 변환 중...',
   'pro.done': '변환 파일 다운로드가 시작됐습니다.',
+  'pro.error.tooLarge': '파일이 너무 큽니다. 더 작은 파일로 다시 시도해주세요.',
+  'pro.error.noTables': '이 PDF에서 표를 찾지 못했습니다. PDF → Excel은 표가 있는 문서에서만 사용할 수 있습니다.',
+  'pro.error.pdfToWordFailed': 'PDF를 Word로 변환하지 못했습니다. 스캔 PDF나 복잡한 레이아웃은 지원이 제한될 수 있습니다.',
+  'pro.error.conversionFailed': '변환에 실패했습니다. 파일 형식이나 문서 구조를 확인해주세요.',
+  'pro.error.timeout': '변환 시간이 초과됐습니다. 더 작은 파일로 다시 시도해주세요.',
+  'pro.error.server': (status: number) => `서버 변환 오류가 발생했습니다. (${status})`,
 } as const
 
 export type TKey = keyof typeof ko

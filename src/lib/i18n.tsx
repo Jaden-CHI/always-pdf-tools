@@ -19,6 +19,7 @@ type FuncKey1 =
   | 'watermark.fontSize'
   | 'ocr.page'
   | 'editor.save'
+  | 'pro.error.server'
 
 type FuncKey2 = 'ocr.status.page' | 'viewer.page'
 

@@ -5,6 +5,18 @@ export interface ProConversionResponse {
   filename: string
 }
 
+export class ProConversionError extends Error {
+  status: number
+  detail: string
+
+  constructor(status: number, detail: string) {
+    super(detail)
+    this.name = 'ProConversionError'
+    this.status = status
+    this.detail = detail
+  }
+}
+
 const API_BASE_URL = import.meta.env.VITE_PRO_API_BASE_URL?.replace(/\/$/, '') ?? ''
 
 const ENDPOINTS: Record<ProConversionType, string> = {
@@ -24,6 +36,18 @@ function readFilenameFromDisposition(value: string | null): string | null {
 
 export function isProApiConfigured(): boolean {
   return API_BASE_URL.length > 0
+}
+
+async function readErrorDetail(blob: Blob): Promise<string> {
+  const text = await blob.text()
+  if (!text) return ''
+
+  try {
+    const parsed = JSON.parse(text) as { detail?: unknown }
+    return typeof parsed.detail === 'string' ? parsed.detail : text
+  } catch {
+    return text
+  }
 }
 
 export async function convertWithProApi(
@@ -49,9 +73,10 @@ export async function convertWithProApi(
       onProgress?.(Math.round((event.loaded / event.total) * 70))
     }
 
-    xhr.onload = () => {
+    xhr.onload = async () => {
       if (xhr.status < 200 || xhr.status >= 300) {
-        reject(new Error(`Pro conversion failed. (${xhr.status})`))
+        const detail = await readErrorDetail(xhr.response)
+        reject(new ProConversionError(xhr.status, detail || `Pro conversion failed. (${xhr.status})`))
         return
       }
 
