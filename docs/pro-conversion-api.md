@@ -66,5 +66,5 @@ Use the matching content type:
 
 - Word/Excel to PDF: LibreOffice headless
 - PDF to Word: `pdf2docx`
-- PDF to Excel: `pdfplumber`, Camelot, or Tabula-style extraction
+- PDF to Excel: `pdfplumber` + `openpyxl`
 - Scanned PDFs: OCR pipeline before conversion

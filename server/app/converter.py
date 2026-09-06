@@ -132,5 +132,82 @@ def run_pdf_to_docx(input_path: Path, output_stem: str, settings: Settings) -> t
     return output_path, f"{output_stem}.docx"
 
 
+def _normalize_cell(value: object) -> str:
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def _sheet_title(page_index: int, table_index: int) -> str:
+    return f"Page {page_index} Table {table_index}"[:31]
+
+
+def _convert_pdf_to_xlsx(input_path: Path, output_path: Path) -> int:
+    import pdfplumber
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill
+    from openpyxl.utils import get_column_letter
+
+    workbook = Workbook()
+    default_sheet = workbook.active
+    workbook.remove(default_sheet)
+    table_count = 0
+
+    with pdfplumber.open(str(input_path)) as pdf:
+        for page_index, page in enumerate(pdf.pages, start=1):
+            tables = page.extract_tables()
+            for table_index, table in enumerate(tables, start=1):
+                if not table or not any(any(_normalize_cell(cell) for cell in row) for row in table):
+                    continue
+
+                table_count += 1
+                sheet = workbook.create_sheet(title=_sheet_title(page_index, table_index))
+                for row_index, row in enumerate(table, start=1):
+                    for col_index, cell in enumerate(row, start=1):
+                        sheet.cell(row=row_index, column=col_index, value=_normalize_cell(cell))
+
+                for cell in sheet[1]:
+                    cell.font = Font(bold=True)
+                    cell.fill = PatternFill("solid", fgColor="EAF2FF")
+
+                for column_cells in sheet.columns:
+                    max_length = max(len(str(cell.value or "")) for cell in column_cells)
+                    width = min(max(max_length + 2, 10), 50)
+                    sheet.column_dimensions[get_column_letter(column_cells[0].column)].width = width
+
+    if table_count:
+        workbook.save(output_path)
+
+    return table_count
+
+
+def run_pdf_to_xlsx(input_path: Path, output_stem: str, settings: Settings) -> tuple[Path, str]:
+    output_path = input_path.parent / f"{output_stem}.xlsx"
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(_convert_pdf_to_xlsx, input_path, output_path)
+        try:
+            table_count = future.result(timeout=settings.conversion_timeout_seconds)
+        except TimeoutError as exc:
+            shutil.rmtree(input_path.parent, ignore_errors=True)
+            raise HTTPException(status_code=504, detail="Conversion timed out.") from exc
+        except Exception as exc:
+            shutil.rmtree(input_path.parent, ignore_errors=True)
+            raise HTTPException(
+                status_code=422,
+                detail="PDF to Excel conversion failed. Complex or scanned PDFs may not be supported.",
+            ) from exc
+
+    if table_count == 0:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=422, detail="No tables were found in this PDF.")
+
+    if not output_path.exists() or output_path.stat().st_size == 0:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=422, detail="Converted XLSX was not created.")
+
+    return output_path, f"{output_stem}.xlsx"
+
+
 def cleanup_file_parent(path: Path) -> None:
     shutil.rmtree(path.parent, ignore_errors=True)
