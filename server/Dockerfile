@@ -3,9 +3,18 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV ALWAYSPDF_SOFFICE_PATH=soffice
+ENV ALWAYSPDF_GS_PATH=gs
+ENV ALWAYSPDF_OCRMYPDF_PATH=ocrmypdf
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends libreoffice fonts-noto-cjk \
+  && apt-get install -y --no-install-recommends \
+    ghostscript \
+    libreoffice \
+    fonts-noto-cjk \
+    ocrmypdf \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-kor \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

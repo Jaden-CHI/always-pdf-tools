@@ -27,14 +27,19 @@ All endpoints accept `multipart/form-data`.
 Required fields:
 
 - `file`: uploaded source file
-- `conversionType`: one of `pdf-to-word`, `pdf-to-excel`, `word-to-pdf`, `excel-to-pdf`
+- `conversionType`: one of `pdf-to-word`, `pdf-to-excel`, `pdf-to-ppt`, `word-to-pdf`, `excel-to-pdf`, `ppt-to-pdf`, `searchable-pdf`, `strong-compress`, `pdf-to-pdfa`
 
 Routes:
 
 - `POST /convert/pdf-to-word`
 - `POST /convert/pdf-to-excel`
+- `POST /convert/pdf-to-ppt`
 - `POST /convert/word-to-pdf`
 - `POST /convert/excel-to-pdf`
+- `POST /convert/ppt-to-pdf`
+- `POST /convert/searchable-pdf`
+- `POST /convert/strong-compress`
+- `POST /convert/pdf-to-pdfa`
 
 ## Response
 
@@ -51,6 +56,7 @@ Use the matching content type:
 
 - DOCX: `application/vnd.openxmlformats-officedocument.wordprocessingml.document`
 - XLSX: `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- PPTX: `application/vnd.openxmlformats-officedocument.presentationml.presentation`
 - PDF: `application/pdf`
 
 ## Server Requirements
@@ -65,6 +71,9 @@ Use the matching content type:
 ## Suggested VPS Engine
 
 - Word/Excel to PDF: LibreOffice headless
+- PowerPoint to PDF: LibreOffice headless
 - PDF to Word: `pdf2docx`
 - PDF to Excel: `pdfplumber` + `openpyxl`
-- Scanned PDFs: OCR pipeline before conversion
+- PDF to PowerPoint: LibreOffice headless
+- Strong compression: Ghostscript
+- Searchable PDF / PDF/A: OCRmyPDF + Tesseract

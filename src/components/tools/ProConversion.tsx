@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Cloud, FileSpreadsheet, FileText, ShieldCheck, TimerReset } from 'lucide-react'
+import { Cloud, FileCheck2, FileSpreadsheet, FileText, Minimize2, Presentation, ScanText, ShieldCheck, TimerReset } from 'lucide-react'
 import { useT } from '@/lib/i18n'
 import Button from '@/components/ui/Button'
 import FileDropZone from '@/components/ui/FileDropZone'
@@ -14,15 +14,25 @@ interface ProConversionProps {
 const ACCEPT_MAP: Record<ProConversionType, string> = {
   'pdf-to-word': '.pdf',
   'pdf-to-excel': '.pdf',
+  'pdf-to-ppt': '.pdf',
   'word-to-pdf': '.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'excel-to-pdf': '.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'ppt-to-pdf': '.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'searchable-pdf': '.pdf',
+  'strong-compress': '.pdf',
+  'pdf-to-pdfa': '.pdf',
 }
 
 const EXT_MAP: Record<ProConversionType, string> = {
   'pdf-to-word': 'docx',
   'pdf-to-excel': 'xlsx',
+  'pdf-to-ppt': 'pptx',
   'word-to-pdf': 'pdf',
   'excel-to-pdf': 'pdf',
+  'ppt-to-pdf': 'pdf',
+  'searchable-pdf': 'pdf',
+  'strong-compress': 'pdf',
+  'pdf-to-pdfa': 'pdf',
 }
 
 function getFriendlyErrorMessage(error: unknown, t: ReturnType<typeof useT>['t']): string {
@@ -33,6 +43,10 @@ function getFriendlyErrorMessage(error: unknown, t: ReturnType<typeof useT>['t']
   if (error.status === 413) return t('pro.error.tooLarge')
   if (error.status === 422 && error.detail.includes('No tables')) return t('pro.error.noTables')
   if (error.status === 422 && error.detail.includes('PDF to Word')) return t('pro.error.pdfToWordFailed')
+  if (error.status === 422 && error.detail.includes('PDF to PowerPoint')) return t('pro.error.pdfToPptFailed')
+  if (error.status === 422 && error.detail.includes('Searchable PDF')) return t('pro.error.searchablePdfFailed')
+  if (error.status === 422 && error.detail.includes('PDF/A')) return t('pro.error.pdfaFailed')
+  if (error.status === 422 && error.detail.includes('compression')) return t('pro.error.compressFailed')
   if (error.status === 422) return t('pro.error.conversionFailed')
   if (error.status === 504) return t('pro.error.timeout')
   return t('pro.error.server', error.status)
@@ -46,18 +60,39 @@ export default function ProConversion({ type }: ProConversionProps) {
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
-  const Icon = type === 'pdf-to-excel' || type === 'excel-to-pdf' ? FileSpreadsheet : FileText
+  const Icon =
+    type === 'pdf-to-excel' || type === 'excel-to-pdf'
+      ? FileSpreadsheet
+      : type === 'pdf-to-ppt' || type === 'ppt-to-pdf'
+        ? Presentation
+        : type === 'searchable-pdf'
+          ? ScanText
+          : type === 'strong-compress'
+            ? Minimize2
+            : type === 'pdf-to-pdfa'
+              ? FileCheck2
+              : FileText
   const titleMap = {
     'pdf-to-word': t('pro.pdfToWord.title'),
     'pdf-to-excel': t('pro.pdfToExcel.title'),
+    'pdf-to-ppt': t('pro.pdfToPpt.title'),
     'word-to-pdf': t('pro.wordToPdf.title'),
     'excel-to-pdf': t('pro.excelToPdf.title'),
+    'ppt-to-pdf': t('pro.pptToPdf.title'),
+    'searchable-pdf': t('pro.searchablePdf.title'),
+    'strong-compress': t('pro.strongCompress.title'),
+    'pdf-to-pdfa': t('pro.pdfToPdfa.title'),
   }
   const descriptionMap = {
     'pdf-to-word': t('pro.pdfToWord.desc'),
     'pdf-to-excel': t('pro.pdfToExcel.desc'),
+    'pdf-to-ppt': t('pro.pdfToPpt.desc'),
     'word-to-pdf': t('pro.wordToPdf.desc'),
     'excel-to-pdf': t('pro.excelToPdf.desc'),
+    'ppt-to-pdf': t('pro.pptToPdf.desc'),
+    'searchable-pdf': t('pro.searchablePdf.desc'),
+    'strong-compress': t('pro.strongCompress.desc'),
+    'pdf-to-pdfa': t('pro.pdfToPdfa.desc'),
   }
   const title = titleMap[type]
   const description = descriptionMap[type]
@@ -134,7 +169,15 @@ export default function ProConversion({ type }: ProConversionProps) {
           accept={ACCEPT_MAP[type]}
           multiple={false}
           label={t('pro.dropzone.label')}
-          sublabel={type.includes('pdf-to') ? t('pro.dropzone.pdf') : type === 'word-to-pdf' ? t('pro.dropzone.word') : t('pro.dropzone.excel')}
+          sublabel={
+            type.includes('pdf-to') || type === 'searchable-pdf' || type === 'strong-compress'
+              ? t('pro.dropzone.pdf')
+              : type === 'word-to-pdf'
+                ? t('pro.dropzone.word')
+                : type === 'excel-to-pdf'
+                  ? t('pro.dropzone.excel')
+                  : t('pro.dropzone.ppt')
+          }
           onFiles={(files) => {
             setFile(files[0] ?? null)
             setDone(false)

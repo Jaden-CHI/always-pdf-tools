@@ -13,10 +13,18 @@ export type ToolId =
   | 'ocr'
   | 'viewer'
   | 'editor'
+  | 'page-numbers'
+  | 'crop-pdf'
+  | 'pdf-to-text'
   | 'pdf-to-word'
   | 'pdf-to-excel'
+  | 'pdf-to-ppt'
   | 'word-to-pdf'
   | 'excel-to-pdf'
+  | 'ppt-to-pdf'
+  | 'searchable-pdf'
+  | 'strong-compress'
+  | 'pdf-to-pdfa'
 
 export interface Tool {
   id: ToolId

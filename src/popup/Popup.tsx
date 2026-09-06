@@ -1,4 +1,4 @@
-import { GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, ExternalLink, PenLine, ShieldOff, LayoutGrid, ScanText, Eye, FilePenLine, FileText, FileSpreadsheet } from 'lucide-react'
+import { GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, ExternalLink, PenLine, ShieldOff, LayoutGrid, ScanText, Eye, FilePenLine, FileText, FileSpreadsheet, Presentation, Hash, Crop, FileCheck2 } from 'lucide-react'
 import { useT } from '@/lib/i18n'
 
 const TOOL_DEFS = [
@@ -16,10 +16,18 @@ const TOOL_DEFS = [
   { nameKey: 'tool.ocr.name', icon: ScanText, color: 'text-blue-500', tool: 'ocr' },
   { nameKey: 'tool.viewer.name', icon: Eye, color: 'text-slate-500', tool: 'viewer' },
   { nameKey: 'tool.editor.name', icon: FilePenLine, color: 'text-green-500', tool: 'editor' },
+  { nameKey: 'tool.pageNumbers.name', icon: Hash, color: 'text-blue-500', tool: 'page-numbers' },
+  { nameKey: 'tool.crop.name', icon: Crop, color: 'text-slate-500', tool: 'crop-pdf' },
+  { nameKey: 'tool.pdfToText.name', icon: FileText, color: 'text-green-500', tool: 'pdf-to-text' },
   { nameKey: 'tool.pdfToWord.name', icon: FileText, color: 'text-blue-500', tool: 'pdf-to-word', pro: true },
   { nameKey: 'tool.pdfToExcel.name', icon: FileSpreadsheet, color: 'text-green-500', tool: 'pdf-to-excel', pro: true },
+  { nameKey: 'tool.pdfToPpt.name', icon: Presentation, color: 'text-orange-500', tool: 'pdf-to-ppt', pro: true },
   { nameKey: 'tool.wordToPdf.name', icon: FileText, color: 'text-blue-500', tool: 'word-to-pdf', pro: true },
   { nameKey: 'tool.excelToPdf.name', icon: FileSpreadsheet, color: 'text-green-500', tool: 'excel-to-pdf', pro: true },
+  { nameKey: 'tool.pptToPdf.name', icon: Presentation, color: 'text-orange-500', tool: 'ppt-to-pdf', pro: true },
+  { nameKey: 'tool.searchablePdf.name', icon: ScanText, color: 'text-purple-500', tool: 'searchable-pdf', pro: true },
+  { nameKey: 'tool.strongCompress.name', icon: Minimize2, color: 'text-red-500', tool: 'strong-compress', pro: true },
+  { nameKey: 'tool.pdfToPdfa.name', icon: FileCheck2, color: 'text-slate-500', tool: 'pdf-to-pdfa', pro: true },
 ] as const
 
 export default function Popup() {

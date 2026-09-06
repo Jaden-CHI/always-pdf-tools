@@ -12,6 +12,7 @@ from app.config import Settings
 
 WORD_EXTENSIONS = {".doc", ".docx"}
 EXCEL_EXTENSIONS = {".xls", ".xlsx"}
+PPT_EXTENSIONS = {".ppt", ".pptx"}
 PDF_EXTENSIONS = {".pdf"}
 
 
@@ -58,6 +59,10 @@ def prepare_pdf_upload(file: UploadFile, settings: Settings) -> tuple[Path, str]
 
 
 def run_soffice(input_path: Path, output_stem: str, settings: Settings) -> tuple[Path, str]:
+    return run_soffice_to_ext(input_path, output_stem, settings, "pdf")
+
+
+def run_soffice_to_ext(input_path: Path, output_stem: str, settings: Settings, output_ext: str) -> tuple[Path, str]:
     job_dir = input_path.parent
     command = [
         settings.soffice_path,
@@ -65,7 +70,7 @@ def run_soffice(input_path: Path, output_stem: str, settings: Settings) -> tuple
         "--nologo",
         "--nofirststartwizard",
         "--convert-to",
-        "pdf",
+        output_ext,
         "--outdir",
         str(job_dir),
         str(input_path),
@@ -90,12 +95,12 @@ def run_soffice(input_path: Path, output_stem: str, settings: Settings) -> tuple
         stderr = exc.stderr.decode("utf-8", errors="replace")[:500]
         raise HTTPException(status_code=422, detail=f"Conversion failed. {stderr}") from exc
 
-    outputs = sorted(job_dir.glob("*.pdf"))
+    outputs = sorted(job_dir.glob(f"*.{output_ext}"))
     if not outputs:
         shutil.rmtree(job_dir, ignore_errors=True)
-        raise HTTPException(status_code=422, detail="Converted PDF was not created.")
+        raise HTTPException(status_code=422, detail=f"Converted {output_ext.upper()} was not created.")
 
-    return outputs[0], f"{output_stem}.pdf"
+    return outputs[0], f"{output_stem}.{output_ext}"
 
 
 def _convert_pdf_to_docx(input_path: Path, output_path: Path) -> None:
@@ -207,6 +212,146 @@ def run_pdf_to_xlsx(input_path: Path, output_stem: str, settings: Settings) -> t
         raise HTTPException(status_code=422, detail="Converted XLSX was not created.")
 
     return output_path, f"{output_stem}.xlsx"
+
+
+def _convert_pdf_to_pptx(input_path: Path, output_path: Path) -> None:
+    import fitz
+    from pptx import Presentation
+
+    document = fitz.open(str(input_path))
+    try:
+        if document.page_count == 0:
+            raise ValueError("PDF has no pages.")
+
+        presentation = Presentation()
+        blank_layout = presentation.slide_layouts[6]
+        first_page = document.load_page(0)
+        presentation.slide_width = int(first_page.rect.width * 12700)
+        presentation.slide_height = int(first_page.rect.height * 12700)
+
+        for index in range(document.page_count):
+            page = document.load_page(index)
+            pixmap = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+            image_path = input_path.parent / f"page-{index + 1}.png"
+            pixmap.save(str(image_path))
+            slide = presentation.slides.add_slide(blank_layout)
+            slide.shapes.add_picture(
+                str(image_path),
+                0,
+                0,
+                width=presentation.slide_width,
+                height=presentation.slide_height,
+            )
+
+        presentation.save(output_path)
+    finally:
+        document.close()
+
+
+def run_pdf_to_pptx(input_path: Path, output_stem: str, settings: Settings) -> tuple[Path, str]:
+    output_path = input_path.parent / f"{output_stem}.pptx"
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(_convert_pdf_to_pptx, input_path, output_path)
+        try:
+            future.result(timeout=settings.conversion_timeout_seconds)
+        except TimeoutError as exc:
+            shutil.rmtree(input_path.parent, ignore_errors=True)
+            raise HTTPException(status_code=504, detail="Conversion timed out.") from exc
+        except Exception as exc:
+            shutil.rmtree(input_path.parent, ignore_errors=True)
+            raise HTTPException(
+                status_code=422,
+                detail="PDF to PowerPoint conversion failed. Complex or damaged PDFs may not be supported.",
+            ) from exc
+
+    if not output_path.exists() or output_path.stat().st_size == 0:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=422, detail="Converted PPTX was not created.")
+
+    return output_path, f"{output_stem}.pptx"
+
+
+def run_strong_compress(input_path: Path, output_stem: str, settings: Settings) -> tuple[Path, str]:
+    output_path = input_path.parent / f"{output_stem}_compressed.pdf"
+    command = [
+        settings.gs_path,
+        "-sDEVICE=pdfwrite",
+        "-dCompatibilityLevel=1.4",
+        "-dPDFSETTINGS=/ebook",
+        "-dNOPAUSE",
+        "-dQUIET",
+        "-dBATCH",
+        f"-sOutputFile={output_path}",
+        str(input_path),
+    ]
+
+    try:
+        subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=settings.conversion_timeout_seconds,
+        )
+    except FileNotFoundError as exc:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=500, detail="Ghostscript executable was not found.") from exc
+    except subprocess.TimeoutExpired as exc:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=504, detail="Conversion timed out.") from exc
+    except subprocess.CalledProcessError as exc:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        stderr = exc.stderr.decode("utf-8", errors="replace")[:500]
+        raise HTTPException(status_code=422, detail=f"Strong compression failed. {stderr}") from exc
+
+    if not output_path.exists() or output_path.stat().st_size == 0:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=422, detail="Compressed PDF was not created.")
+
+    return output_path, f"{output_stem}_compressed.pdf"
+
+
+def run_ocrmypdf(input_path: Path, output_stem: str, settings: Settings, mode: str) -> tuple[Path, str]:
+    output_path = input_path.parent / f"{output_stem}_{mode}.pdf"
+    output_type = "pdfa" if mode == "pdfa" else "pdf"
+    command = [
+        settings.ocrmypdf_path,
+        "--skip-text",
+        "--language",
+        "kor+eng",
+        "--output-type",
+        output_type,
+        str(input_path),
+        str(output_path),
+    ]
+
+    try:
+        subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=settings.conversion_timeout_seconds,
+        )
+    except FileNotFoundError as exc:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=500, detail="OCRmyPDF executable was not found.") from exc
+    except subprocess.TimeoutExpired as exc:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=504, detail="Conversion timed out.") from exc
+    except subprocess.CalledProcessError as exc:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        stderr = exc.stderr.decode("utf-8", errors="replace")[:500]
+        label = "PDF/A" if mode == "pdfa" else "Searchable PDF"
+        raise HTTPException(status_code=422, detail=f"{label} conversion failed. {stderr}") from exc
+
+    if not output_path.exists() or output_path.stat().st_size == 0:
+        shutil.rmtree(input_path.parent, ignore_errors=True)
+        raise HTTPException(status_code=422, detail="Converted PDF was not created.")
+
+    suffix = "pdfa" if mode == "pdfa" else "searchable"
+    return output_path, f"{output_stem}_{suffix}.pdf"
 
 
 def cleanup_file_parent(path: Path) -> None:

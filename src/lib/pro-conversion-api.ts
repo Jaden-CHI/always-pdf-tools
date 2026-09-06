@@ -1,4 +1,13 @@
-export type ProConversionType = 'pdf-to-word' | 'pdf-to-excel' | 'word-to-pdf' | 'excel-to-pdf'
+export type ProConversionType =
+  | 'pdf-to-word'
+  | 'pdf-to-excel'
+  | 'pdf-to-ppt'
+  | 'word-to-pdf'
+  | 'excel-to-pdf'
+  | 'ppt-to-pdf'
+  | 'searchable-pdf'
+  | 'strong-compress'
+  | 'pdf-to-pdfa'
 
 export interface ProConversionResponse {
   blob: Blob
@@ -22,8 +31,13 @@ const API_BASE_URL = import.meta.env.VITE_PRO_API_BASE_URL?.replace(/\/$/, '') ?
 const ENDPOINTS: Record<ProConversionType, string> = {
   'pdf-to-word': '/convert/pdf-to-word',
   'pdf-to-excel': '/convert/pdf-to-excel',
+  'pdf-to-ppt': '/convert/pdf-to-ppt',
   'word-to-pdf': '/convert/word-to-pdf',
   'excel-to-pdf': '/convert/excel-to-pdf',
+  'ppt-to-pdf': '/convert/ppt-to-pdf',
+  'searchable-pdf': '/convert/searchable-pdf',
+  'strong-compress': '/convert/strong-compress',
+  'pdf-to-pdfa': '/convert/pdf-to-pdfa',
 }
 
 function readFilenameFromDisposition(value: string | null): string | null {

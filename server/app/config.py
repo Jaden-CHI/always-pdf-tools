@@ -8,6 +8,8 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     app_name: str = "AlwaysPDF Pro API"
     soffice_path: str = Field(default="soffice")
+    gs_path: str = Field(default="gs")
+    ocrmypdf_path: str = Field(default="ocrmypdf")
     max_upload_mb: int = Field(default=50)
     conversion_timeout_seconds: int = Field(default=120)
     allowed_origins: str = Field(default="*")

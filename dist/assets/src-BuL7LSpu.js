@@ -1,0 +1,1 @@
+import"./browserRunner-DIR6MfMt.js";import{t as e}from"./index.html-fmgrTREj.js";async function t(t){if(t||={},t.env&&t.env!==`browser`)throw Error(`qpdf-run currently supports only env: "browser".`);return await(await e(()=>import(`./browserRunner-DIR6MfMt.js`),[],import.meta.url)).createBrowserQpdfRunner(t)}export{t as createQpdfRunner};

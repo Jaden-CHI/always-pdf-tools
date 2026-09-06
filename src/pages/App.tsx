@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Moon, Sun, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, PenLine, ShieldOff, LayoutGrid, ScanText, Eye, FilePenLine, FileText, FileSpreadsheet } from 'lucide-react'
+import { Moon, Sun, GitMerge, Scissors, Minimize2, Image, Images, RotateCw, Droplets, Lock, PenLine, ShieldOff, LayoutGrid, ScanText, Eye, FilePenLine, FileText, FileSpreadsheet, Presentation, Hash, Crop, FileCheck2 } from 'lucide-react'
 import ToolCard from '@/components/ui/ToolCard'
 import MergePDF from '@/components/tools/MergePDF'
 import SplitPDF from '@/components/tools/SplitPDF'
@@ -15,6 +15,9 @@ import OrganizePages from '@/components/tools/OrganizePages'
 import OCRTool from '@/components/tools/OCRTool'
 import PDFViewer from '@/components/tools/PDFViewer'
 import PDFEditor from '@/components/tools/PDFEditor'
+import PageNumbers from '@/components/tools/PageNumbers'
+import CropPDF from '@/components/tools/CropPDF'
+import PDFToText from '@/components/tools/PDFToText'
 import ProConversion from '@/components/tools/ProConversion'
 import { useT } from '@/lib/i18n'
 import type { ToolId } from '@/types'
@@ -34,10 +37,18 @@ const TOOL_DEFS = [
   { id: 'ocr' as ToolId, nameKey: 'tool.ocr.name', descKey: 'tool.ocr.desc', icon: ScanText, color: 'blue' },
   { id: 'viewer' as ToolId, nameKey: 'tool.viewer.name', descKey: 'tool.viewer.desc', icon: Eye, color: 'slate' },
   { id: 'editor' as ToolId, nameKey: 'tool.editor.name', descKey: 'tool.editor.desc', icon: FilePenLine, color: 'green' },
+  { id: 'page-numbers' as ToolId, nameKey: 'tool.pageNumbers.name', descKey: 'tool.pageNumbers.desc', icon: Hash, color: 'blue' },
+  { id: 'crop-pdf' as ToolId, nameKey: 'tool.crop.name', descKey: 'tool.crop.desc', icon: Crop, color: 'slate' },
+  { id: 'pdf-to-text' as ToolId, nameKey: 'tool.pdfToText.name', descKey: 'tool.pdfToText.desc', icon: FileText, color: 'green' },
   { id: 'pdf-to-word' as ToolId, nameKey: 'tool.pdfToWord.name', descKey: 'tool.pdfToWord.desc', icon: FileText, color: 'blue', pro: true },
   { id: 'pdf-to-excel' as ToolId, nameKey: 'tool.pdfToExcel.name', descKey: 'tool.pdfToExcel.desc', icon: FileSpreadsheet, color: 'green', pro: true },
+  { id: 'pdf-to-ppt' as ToolId, nameKey: 'tool.pdfToPpt.name', descKey: 'tool.pdfToPpt.desc', icon: Presentation, color: 'orange', pro: true },
   { id: 'word-to-pdf' as ToolId, nameKey: 'tool.wordToPdf.name', descKey: 'tool.wordToPdf.desc', icon: FileText, color: 'blue', pro: true },
   { id: 'excel-to-pdf' as ToolId, nameKey: 'tool.excelToPdf.name', descKey: 'tool.excelToPdf.desc', icon: FileSpreadsheet, color: 'green', pro: true },
+  { id: 'ppt-to-pdf' as ToolId, nameKey: 'tool.pptToPdf.name', descKey: 'tool.pptToPdf.desc', icon: Presentation, color: 'orange', pro: true },
+  { id: 'searchable-pdf' as ToolId, nameKey: 'tool.searchablePdf.name', descKey: 'tool.searchablePdf.desc', icon: ScanText, color: 'purple', pro: true },
+  { id: 'strong-compress' as ToolId, nameKey: 'tool.strongCompress.name', descKey: 'tool.strongCompress.desc', icon: Minimize2, color: 'red', pro: true },
+  { id: 'pdf-to-pdfa' as ToolId, nameKey: 'tool.pdfToPdfa.name', descKey: 'tool.pdfToPdfa.desc', icon: FileCheck2, color: 'slate', pro: true },
 ] as const
 
 const TOOL_COMPONENTS: Partial<Record<ToolId, React.ComponentType>> = {
@@ -55,10 +66,18 @@ const TOOL_COMPONENTS: Partial<Record<ToolId, React.ComponentType>> = {
   ocr: OCRTool,
   viewer: PDFViewer,
   editor: PDFEditor,
+  'page-numbers': PageNumbers,
+  'crop-pdf': CropPDF,
+  'pdf-to-text': PDFToText,
   'pdf-to-word': () => <ProConversion type="pdf-to-word" />,
   'pdf-to-excel': () => <ProConversion type="pdf-to-excel" />,
+  'pdf-to-ppt': () => <ProConversion type="pdf-to-ppt" />,
   'word-to-pdf': () => <ProConversion type="word-to-pdf" />,
   'excel-to-pdf': () => <ProConversion type="excel-to-pdf" />,
+  'ppt-to-pdf': () => <ProConversion type="ppt-to-pdf" />,
+  'searchable-pdf': () => <ProConversion type="searchable-pdf" />,
+  'strong-compress': () => <ProConversion type="strong-compress" />,
+  'pdf-to-pdfa': () => <ProConversion type="pdf-to-pdfa" />,
 }
 
 export default function App() {
