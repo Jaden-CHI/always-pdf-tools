@@ -12,3 +12,12 @@ services:
       - /tmp/alwayspdf-pro:size=512m,mode=1777
     security_opt:
       - no-new-privileges:true
+    networks:
+      - default
+      - erp-platform
+
+networks:
+  default:
+  erp-platform:
+    external: true
+    name: erp-platform_default
