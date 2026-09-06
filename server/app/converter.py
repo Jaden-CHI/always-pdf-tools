@@ -6,7 +6,6 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
-from pdf2docx import Converter
 
 from app.config import Settings
 
@@ -100,6 +99,8 @@ def run_soffice(input_path: Path, output_stem: str, settings: Settings) -> tuple
 
 
 def _convert_pdf_to_docx(input_path: Path, output_path: Path) -> None:
+    from pdf2docx import Converter
+
     converter = Converter(str(input_path))
     try:
         converter.convert(str(output_path), start=0, end=None)
