@@ -35,6 +35,27 @@ ALWAYSPDF_GS_PATH=gs
 ALWAYSPDF_OCRMYPDF_PATH=ocrmypdf
 ```
 
+## Adobe PDF Services
+
+Adobe PDF Services can be used as the higher-quality engine for these routes:
+
+- `POST /convert/pdf-to-word`
+- `POST /convert/pdf-to-excel`
+- `POST /convert/pdf-to-ppt`
+- `POST /convert/word-to-pdf`
+- `POST /convert/excel-to-pdf`
+- `POST /convert/ppt-to-pdf`
+
+Set these values in `server/.env` on the VPS:
+
+```env
+ALWAYSPDF_ADOBE_PDF_SERVICES_ENABLED=true
+ALWAYSPDF_ADOBE_PDF_SERVICES_CLIENT_ID=your_adobe_client_id
+ALWAYSPDF_ADOBE_PDF_SERVICES_CLIENT_SECRET=your_adobe_client_secret
+```
+
+If either Adobe value is empty, the API automatically keeps using the built-in engines.
+
 ## Docker Run
 
 ```bash

@@ -68,12 +68,33 @@ Use the matching content type:
 - Conversion execution isolated from the web process
 - Clear error responses for unsupported files, password-protected files, and conversion failures
 
-## Suggested VPS Engine
+## Current VPS Engines
 
 - Word/Excel to PDF: LibreOffice headless
 - PowerPoint to PDF: LibreOffice headless
 - PDF to Word: `pdf2docx`
 - PDF to Excel: `pdfplumber` + `openpyxl`
-- PDF to PowerPoint: LibreOffice headless
+- PDF to PowerPoint: PyMuPDF page rendering + `python-pptx`
 - Strong compression: Ghostscript
 - Searchable PDF / PDF/A: OCRmyPDF + Tesseract
+
+## Optional Commercial Engine
+
+Adobe PDF Services can be enabled for higher-quality PDF <-> Office conversions by setting:
+
+```env
+ALWAYSPDF_ADOBE_PDF_SERVICES_ENABLED=true
+ALWAYSPDF_ADOBE_PDF_SERVICES_CLIENT_ID=your_adobe_client_id
+ALWAYSPDF_ADOBE_PDF_SERVICES_CLIENT_SECRET=your_adobe_client_secret
+```
+
+When configured, these routes use Adobe first:
+
+- `POST /convert/pdf-to-word`
+- `POST /convert/pdf-to-excel`
+- `POST /convert/pdf-to-ppt`
+- `POST /convert/word-to-pdf`
+- `POST /convert/excel-to-pdf`
+- `POST /convert/ppt-to-pdf`
+
+If Adobe credentials are missing, the API falls back to the built-in VPS engines.

@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
 
+from app.adobe_converter import run_adobe_create_pdf, run_adobe_pdf_export
 from app.config import Settings
 
 
@@ -59,6 +60,9 @@ def prepare_pdf_upload(file: UploadFile, settings: Settings) -> tuple[Path, str]
 
 
 def run_soffice(input_path: Path, output_stem: str, settings: Settings) -> tuple[Path, str]:
+    if settings.adobe_pdf_services_available:
+        return run_adobe_create_pdf(input_path, output_stem, settings)
+
     return run_soffice_to_ext(input_path, output_stem, settings, "pdf")
 
 
@@ -114,6 +118,9 @@ def _convert_pdf_to_docx(input_path: Path, output_path: Path) -> None:
 
 
 def run_pdf_to_docx(input_path: Path, output_stem: str, settings: Settings) -> tuple[Path, str]:
+    if settings.adobe_pdf_services_available:
+        return run_adobe_pdf_export(input_path, output_stem, settings, "docx")
+
     output_path = input_path.parent / f"{output_stem}.docx"
 
     with ThreadPoolExecutor(max_workers=1) as executor:
@@ -187,6 +194,9 @@ def _convert_pdf_to_xlsx(input_path: Path, output_path: Path) -> int:
 
 
 def run_pdf_to_xlsx(input_path: Path, output_stem: str, settings: Settings) -> tuple[Path, str]:
+    if settings.adobe_pdf_services_available:
+        return run_adobe_pdf_export(input_path, output_stem, settings, "xlsx")
+
     output_path = input_path.parent / f"{output_stem}.xlsx"
 
     with ThreadPoolExecutor(max_workers=1) as executor:
@@ -249,6 +259,9 @@ def _convert_pdf_to_pptx(input_path: Path, output_path: Path) -> None:
 
 
 def run_pdf_to_pptx(input_path: Path, output_stem: str, settings: Settings) -> tuple[Path, str]:
+    if settings.adobe_pdf_services_available:
+        return run_adobe_pdf_export(input_path, output_stem, settings, "pptx")
+
     output_path = input_path.parent / f"{output_stem}.pptx"
 
     with ThreadPoolExecutor(max_workers=1) as executor:

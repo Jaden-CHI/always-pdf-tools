@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     soffice_path: str = Field(default="soffice")
     gs_path: str = Field(default="gs")
     ocrmypdf_path: str = Field(default="ocrmypdf")
+    adobe_pdf_services_client_id: str = Field(default="")
+    adobe_pdf_services_client_secret: str = Field(default="")
+    adobe_pdf_services_enabled: bool = Field(default=True)
     max_upload_mb: int = Field(default=50)
     conversion_timeout_seconds: int = Field(default=120)
     allowed_origins: str = Field(default="*")
@@ -24,6 +27,14 @@ class Settings(BaseSettings):
         if self.allowed_origins.strip() == "*":
             return ["*"]
         return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+
+    @property
+    def adobe_pdf_services_available(self) -> bool:
+        return (
+            self.adobe_pdf_services_enabled
+            and bool(self.adobe_pdf_services_client_id.strip())
+            and bool(self.adobe_pdf_services_client_secret.strip())
+        )
 
     class Config:
         env_file = ".env"
